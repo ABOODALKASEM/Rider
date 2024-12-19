@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GoogleMap } from '@capacitor/google-maps';
+import { GoogleMap, Marker } from '@capacitor/google-maps';
 import { environment } from 'src/environments/environment';
 import { GeocodeService } from './geocode.service';
 import { OverlayService } from './overlay.service';
@@ -31,17 +31,28 @@ export class MapService {
             lat: 5.5122138,
             lng: 7.4919135
           },
-          zoom: 8,
+          zoom: 15,
+          height: 100,
+          width: 300,
+          scaleControl: false,
+          streetViewControl: false,
+          rotateControl: false,
+          fullscreenControl: false,
         },
       });
+
+      console.log('Map created successfully');
 
       this.LatLng = {
         lat: coords.coords.latitude,
         lng: coords.coords.longitude
       };
 
-      this.newMap.enableTrafficLayer(true);
-      this.newMap.enableCurrentLocation(true);
+      // Ensure map is ready before performing operations
+      console.log('Map is initialized');
+
+      await this.newMap.enableTrafficLayer(true);
+      await this.newMap.enableCurrentLocation(true);
       await this.newMap.setCamera({
         animate: true,
         animationDuration: 500,
@@ -79,50 +90,78 @@ export class MapService {
     }
   }
 
-  async CalculateCenter(locations) {
-    let latitude = 0;
-    let longitude = 0;
-
-    for (const location of locations) {
-      longitude += location.geoCode.longitude;
-      latitude += location.geoCode.latitude;
-    }
-    latitude /= locations.length;
-    longitude /= locations.length;
-    return {
-      latitude,
-      longitude
-    };
+  calculateCenter(points) {
+    const latitudes = points.map(p => p.geoCode.latitude);
+    const longitudes = points.map(p => p.geoCode.longitude);
+  
+    const avgLat = latitudes.reduce((a, b) => a + b, 0) / latitudes.length;
+    const avgLng = longitudes.reduce((a, b) => a + b, 0) / longitudes.length;
+  
+    return { latitude: avgLat, longitude: avgLng };
   }
 
-  async getBoundsZoomLevel(bounds, mapDim) {
+  async setCameraToLocation(coordinate: { lat: number; lng: number }, zoom: number, bearing: any) {
+    if (this.newMap) {
+      try {
+        await this.newMap.setCamera({
+          animate: true,
+          animationDuration: 500,
+          zoom: zoom,
+          coordinate: coordinate,
+          bearing: bearing
+        });
+      } catch (error) {
+        console.error('Error setting camera:', error);
+      }
+    } else {
+      console.error('Map is not initialized.');
+    }
+  }
+  
+  // Add other necessary methods like getAddress here
+
+  
+  
+   getBoundsZoomLevel(bounds, mapDim) {
     const WORLD_DIM = { height: 256, width: 256 };
-    const ZOOM_MAX = 21;
+      const ZOOM_MAX = 21;
 
-    function latRad(lat) {
-      const sin = Math.sin(lat * Math.PI / 180);
-      const radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
-      return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
-    }
+      const latRad = lat => {
+        const sin = Math.sin((lat * Math.PI) / 180);
+        const radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
+        return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
+      };
 
-    function zoom(mapPx, worldPx, fraction) {
-      return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
-    }
+      const zoom = (mapPx, worldPx, fraction) =>
+        Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
 
-    const ne = bounds.getNorthEast();
-    const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
 
-    const latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI;
+      const latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI;
 
-    const lngDiff = ne.lng() - sw.lng();
-    const lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
+      const lngDiff = ne.lng() - sw.lng();
+      const lngFraction = (lngDiff < 0 ? lngDiff + 360 : lngDiff) / 360;
 
-    const latZoom = zoom(mapDim.height, WORLD_DIM.height, latFraction);
-    const lngZoom = zoom(mapDim.width, WORLD_DIM.width, lngFraction);
+      const latZoom = zoom(mapDim.height, WORLD_DIM.height, latFraction);
+      const lngZoom = zoom(mapDim.width, WORLD_DIM.width, lngFraction);
 
-    return Math.min(latZoom, lngZoom, ZOOM_MAX);
+      return Math.min(latZoom, lngZoom, ZOOM_MAX);
   }
-
+  
+  calculateBearing(start, end) {
+    const startLat = start.lat * (Math.PI / 180);
+    const startLng = start.lng * (Math.PI / 180);
+    const endLat = end.lat * (Math.PI / 180);
+    const endLng = end.lng * (Math.PI / 180);
+  
+    const dLng = endLng - startLng;
+    const y = Math.sin(dLng) * Math.cos(endLat);
+    const x = Math.cos(startLat) * Math.sin(endLat) - Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
+    const bearing = Math.atan2(y, x) * (180 / Math.PI);
+  
+    return (bearing + 360) % 360;
+  }
   async getDirections(from: string, to: string): Promise<any> {
     try {
       const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${from}&destination=${to}&key=${environment.apiKey}`;
@@ -134,12 +173,27 @@ export class MapService {
     }
   }
 
-  private getAddress(lat: number, lng: number): Promise<any> {
+ getAddress(lat: number, lng: number): Promise<any> {
     const url = `https://maps.googleapis.com/maps/api/geocode/json`;
     const params = new HttpParams()
       .set('latlng', `${lat},${lng}`)
       .set('key', environment.apiKey);
 
     return this.http.get(url, { params }).toPromise();
+  }
+
+  // Add the addMarker method to the MapService class
+  async addMarker(lat: number, lng: number, title: string): Promise<Marker> {
+    try {
+      const marker: Marker = {
+        coordinate: { lat, lng },
+        title,
+      };
+      await this.newMap.addMarker(marker);
+      return marker;
+    } catch (error) {
+      console.error('Error adding marker:', error);
+      return null;
+    }
   }
 }

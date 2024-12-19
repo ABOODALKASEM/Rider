@@ -5,14 +5,15 @@ import {
   redirectLoggedInTo,
   canActivate,
 } from '@angular/fire/auth-guard';
+import { RiderProfileGuard } from './guards/rider-profile.guard';
 
-const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['']);
+const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login']);
 const redirectLoggedInToHome = () => redirectLoggedInTo(['home']);
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'home',
     pathMatch: 'full'
   },
   {
@@ -25,53 +26,70 @@ const routes: Routes = [
     path: 'home',
     loadChildren: () =>
       import('./home/home.module').then((m) => m.HomePageModule),
-      ...canActivate(redirectUnauthorizedToLogin),
+    ...canActivate(redirectUnauthorizedToLogin),
   },
   {
     path: 'profile',
-    loadChildren: () => 
-      import('./pages/profile/profile.module').then( (m) => m.ProfilePageModule),
-      ...canActivate(redirectUnauthorizedToLogin),
+    loadChildren: () =>
+      import('./pages/profile/profile.module').then((m) => m.ProfilePageModule),
+    ...canActivate(redirectUnauthorizedToLogin),
   },
   {
     path: 'history',
-    loadChildren: () => import('./pages/history/history.module').then( m => m.HistoryPageModule),
+    loadChildren: () =>
+      import('./pages/history/history.module').then((m) => m.HistoryPageModule),
     ...canActivate(redirectUnauthorizedToLogin),
   },
   {
     path: 'details',
-    loadChildren: () => import('./pages/details/details.module').then( m => m.DetailsPageModule),
+    loadChildren: () =>
+      import('./pages/details/details.module').then((m) => m.DetailsPageModule),
     ...canActivate(redirectUnauthorizedToLogin),
   },
   {
     path: 'payment',
-    loadChildren: () => import('./pages/payment/payment.module').then( m => m.PaymentPageModule)
+    loadChildren: () =>
+      import('./pages/payment/payment.module').then((m) => m.PaymentPageModule),
+    ...canActivate(redirectUnauthorizedToLogin), // Added guard
   },
   {
     path: 'support',
-    loadChildren: () => import('./pages/support/support.module').then( m => m.SupportPageModule)
+    loadChildren: () =>
+      import('./pages/support/support.module').then((m) => m.SupportPageModule),
+    ...canActivate(redirectUnauthorizedToLogin), // Added guard
   },
   {
     path: 'about',
-    loadChildren: () => import('./pages/about/about.module').then( m => m.AboutPageModule)
+    loadChildren: () =>
+      import('./pages/about/about.module').then((m) => m.AboutPageModule),
+    ...canActivate(redirectUnauthorizedToLogin), // Added guard
   },
   {
     path: 'promotion',
-    loadChildren: () => import('./pages/promotion/promotion.module').then( m => m.PromotionPageModule)
+    loadChildren: () =>
+      import('./pages/promotion/promotion.module').then((m) => m.PromotionPageModule),
+    ...canActivate(redirectUnauthorizedToLogin), // Added guard
   },
   {
     path: 'rating',
-    loadChildren: () => import('./pages/rating/rating.module').then( m => m.RatingPageModule)
-  },
-  {
-    path: 'phone-detail',
-    loadChildren: () => import('./pages/phone-detail/phone-detail.module').then( m => m.PhoneDetailPageModule)
+    loadChildren: () =>
+      import('./pages/rating/rating.module').then((m) => m.RatingPageModule),
+    ...canActivate(redirectUnauthorizedToLogin), // Added guard
   },
   {
     path: 'network',
-    loadChildren: () => import('./pages/network/network.module').then( m => m.NetworkPageModule)
+    loadChildren: () =>
+      import('./pages/network/network.module').then((m) => m.NetworkPageModule),
+    ...canActivate(redirectUnauthorizedToLogin), // Added guard
   },
-
+  {
+    path: 'paymentcallback',
+    loadChildren: () => import('./paymentcallback/paymentcallback.module').then(m => m.PaymentcallbackPageModule)
+  },
+  {
+    path: '**', // Catch-all route
+    redirectTo: 'home'
+  },
 ];
 
 @NgModule({

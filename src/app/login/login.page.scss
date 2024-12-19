@@ -78,8 +78,9 @@ ion-select {
 
 ion-input {
   width: 60%;
-  --padding-start: 0;
-  --padding-end: 0;
+  // --padding-start: 0;
+  // --padding-end: 0;
+  font-size: large;
 }
 
 .pm-awesome-divider {
@@ -115,4 +116,11 @@ ion-searchbar {
 ion-select-option {
   font-size: 16px;
   line-height: 24px;
+}
+
+#recaptcha-container {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 1000;
 }

@@ -1,11 +1,11 @@
 import { Component, NgZone } from '@angular/core';
-import { NavController, Platform, IonicModule } from '@ionic/angular';
+import { NavController, Platform } from '@ionic/angular';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { AvatarService } from './services/avatar.service';
 import { StatusBar, Style } from '@capacitor/status-bar';
-import { timer } from 'rxjs';
 import { Auth } from '@angular/fire/auth';
-
+import { Router, NavigationEnd } from '@angular/router';
+import OneSignal from 'onesignal-cordova-plugin';
 
 @Component({
   selector: 'app-root',
@@ -23,68 +23,85 @@ export class AppComponent {
   source: string;
   user: import("@angular/fire/auth").User;
   profile: { [x: string]: any; };
-  constructor(public avatar: AvatarService, private auth: Auth, private platform: Platform, private nav: NavController) {
-    this.initialize()
+  loading: boolean = true; // Add loading state
 
+  constructor(
+    private platform: Platform,
+    private ngZone: NgZone,
+    public avatar: AvatarService,
+    private auth: Auth,
+    private nav: NavController,
+    private router: Router
+  ) {
+    this.initialize();
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        console.log('Navigation ended:', event);
+      }
+    });
   }
 
   async initialize() {
-    
-    this.platform.ready().then(async (readySource) => {
-      this.auth.onAuthStateChanged(async (user)=>{
-      this.user = user;
-      console.log(user);
+    this.platform.ready().then(async (readySource: string) => {
+      this.source = readySource;
+      this.auth.onAuthStateChanged(async (user) => {
+        this.user = user;
+        console.log('Auth state changed:', user);
+        
+        if (user) {
+          // User is signed in
+          console.log('User is signed in:', user);
+        } else {
+          // User is signed out
+          console.log('User is signed out');
+        }
 
-      
-      this.source = readySource
-     
-      if (readySource != 'dom'){
-      await StatusBar.setBackgroundColor({color: '#3880ff'})
-      }
-      await this.LoadSplash();
-      
-
-    })
-
-    
-
+        if (readySource != 'dom') {
+          await StatusBar.setBackgroundColor({ color: '#3880ff' });
+          StatusBar.setStyle({ style: Style.Light });
+        }
+        await this.LoadSplash();
+        this.loading = false; // Set loading to false after initialization
       });
+
+      // await this.initializeOneSignal();
+    });
   }
 
-  async LoadSplash(){
+  // private async initializeOneSignal() {
+  //   if (this.platform.is('cordova')) {
+  //     await OneSignal.initialize('ba7d77ed-1525-416c-9ac5-7b5d36e68740');
+      
+  //     OneSignal.Notifications.addEventListener('foregroundWillDisplay', (event) => {
+  //       this.ngZone.run(() => {
+  //         console.log('Notification received in foreground:', event);
+  //         // Handle received notification
+  //       });
+  //     });
+
+  //     OneSignal.Notifications.addEventListener('click', (openedEvent) => {
+  //       this.ngZone.run(() => {
+  //         console.log('Notification opened:', openedEvent);
+  //         // Handle opened notification
+  //       });
+  //     });
+
+  //     await OneSignal.User.pushSubscription.optIn();
+  //   }
+  // }
+
+  async LoadSplash() {
     await SplashScreen.show();
 
     if (this.source != 'dom')
-    await StatusBar.setOverlaysWebView({ overlay: true });
-
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
-
-    // Listen for changes to the prefers-color-scheme media query
-    prefersDark.addListener((mediaQuery) => this.toggleDarkTheme(mediaQuery.matches));
- 
-     this.toggleDarkTheme(prefersDark.matches);
-
-     if (this.source != 'dom')
-    await StatusBar.setOverlaysWebView({ overlay: true });
+      await StatusBar.setOverlaysWebView({ overlay: true });
   }
 
-
-  toggleDarkTheme(shouldAdd) {
-    if (shouldAdd){
-      StatusBar.setStyle({ style: Style.Dark });
-    }else{
-     StatusBar.setStyle({ style: Style.Light });
-    }
-  }
-
-  gotoProfile(){
+  gotoProfile() {
     this.nav.navigateForward('profile');
   }
 
-  gotoPage(p){
+  gotoPage(p) {
     this.nav.navigateForward(p);
   }
-
-  
-
 }

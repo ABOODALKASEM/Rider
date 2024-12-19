@@ -4,15 +4,15 @@
 
 export const environment = {
   firebase: {
-    apiKey: 'AIzaSyAM7UJdVZo95dz00IKQz_p0uI8Bse5KnZ8',
+    apiKey: 'AIzaSyC3VpqBmNqCUe1_g_ELb-LASUYR98s9h5k',
     authDomain: 'reboot-22979.firebaseapp.com',
     projectId: 'reboot-22979',
     storageBucket: 'reboot-22979.appspot.com',
     messagingSenderId: '1033966813085',
-    appId: '',
+    appId: 'AIzaSyC3VpqBmNqCUe1_g_ELb-LASUYR98s9h5k',
   },
   production: true,
-  apiKey: "AIzaSyAiKWSsMDiK4o7yng6YmR2dX3Yfb7zu_vI",
+  apiKey: "AIzaSyC2VPPqUJdOaeOW8VpNA3Y1iswP_uJ_wrY",
   CountryJson: [
     {
         "name": "Afghanistan",

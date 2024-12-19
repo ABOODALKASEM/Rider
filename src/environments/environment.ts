@@ -9,10 +9,16 @@ export const environment = {
     projectId: 'reboot-22979',
     storageBucket: 'reboot-22979.appspot.com',
     messagingSenderId: '1033966813085',
-    appId: '',
+    appId: 'AIzaSyC3VpqBmNqCUe1_g_ELb-LASUYR98s9h5k',
+  },
+  onesignal: {
+    appId: 'ba7d77ed-1525-416c-9ac5-7b5d36e68740',
+    restApiKey: 'YTM3ODgyMzQtNjg1ZC00YTQwLWJmNjItNTA4M2VkMmY3MDdl',
+    android_channel_id: ''
   },
   production: false,
-  apiKey: "AIzaSyAiKWSsMDiK4o7yng6YmR2dX3Yfb7zu_vI",
+  apiKey: "AIzaSyC2VPPqUJdOaeOW8VpNA3Y1iswP_uJ_wrY",
+  serverUrl: "https://payment-server-wheat.vercel.app/",
   CountryJson: [
     {
         "name": "Afghanistan",

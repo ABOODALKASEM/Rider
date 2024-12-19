@@ -17,22 +17,23 @@ import { indexedDBLocalPersistence, initializeAuth } from 'firebase/auth';
 import { getApp } from 'firebase/app';
 import { OtpComponent } from './otp/otp.component';
 import { NgOtpInputModule } from  'ng-otp-input';
-import {Client} from "@googlemaps/google-maps-services-js";
-import { AutocompleteComponent } from './autocomplete/autocomplete.component';
+import { Client} from "@googlemaps/google-maps-services-js";
 import { HttpClientModule } from '@angular/common/http';
-import { ServiceWorkerModule } from '@angular/service-worker';
+import { CommonModule } from '@angular/common';
 import { CountrySearchModalComponent } from './country-search-modal/country-search-modal.component';
-import { PaystackPlugin } from '@bot101/capacitor-paystack-plugin';
+import { AddCardComponent } from './add-card/add-card.component';
+import { AutocompleteComponent } from './autocomplete/autocomplete.component';
 import { EnrouteChatComponent } from './enroute-chat/enroute-chat.component';
-
 @NgModule({
-  declarations: [AppComponent, OtpComponent, AutocompleteComponent, CountrySearchModalComponent, EnrouteChatComponent],
+  declarations: [AppComponent, OtpComponent, CountrySearchModalComponent, AddCardComponent, AutocompleteComponent, EnrouteChatComponent],
   entryComponents: [],
   imports: [
     BrowserModule,
     NgOtpInputModule,
     FormsModule,
+    CommonModule,
     HttpClientModule,
+    ReactiveFormsModule,
     IonicModule.forRoot(),
     AppRoutingModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
@@ -47,15 +48,8 @@ import { EnrouteChatComponent } from './enroute-chat/enroute-chat.component';
     }),
     provideFirestore(() => getFirestore()),
     provideStorage(() => getStorage()),
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-      // Register the ServiceWorker as soon as the application is stable
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000'
-    }),
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, GoogleAuthProvider,
-    PaystackPlugin, FacebookAuthProvider, Client],
+  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },  GoogleAuthProvider, FacebookAuthProvider, Client],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

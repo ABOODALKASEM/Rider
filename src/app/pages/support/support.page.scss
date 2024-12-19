@@ -55,3 +55,50 @@ ion-skeleton-text {
     --background: rgba(0, 98, 255, 0.259);
   }
   
+.message-list {
+    padding: 10px;
+}
+
+.message {
+    margin-bottom: 10px;
+    display: flex;
+}
+
+.my-message {
+    justify-content: flex-end;
+}
+
+.other-message {
+    justify-content: flex-start;
+}
+
+.message-bubble {
+    max-width: 70%;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.my-message .message-bubble {
+    background-color: #dcf8c6;
+}
+
+.other-message .message-bubble {
+    background-color: #ffffff;
+}
+
+.message-text {
+    margin: 0;
+}
+
+.message-time {
+    font-size: 0.8em;
+    color: #888;
+    text-align: right;
+    margin-top: 5px;
+}
+
+.no-messages {
+    text-align: center;
+    color: #888;
+    padding: 20px;
+}

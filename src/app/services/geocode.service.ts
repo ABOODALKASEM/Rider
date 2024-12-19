@@ -33,35 +33,33 @@ export class GeocodeService {
       })
     );
   }
+
+  // Convert the address to lat and lng
+  getLatLng(address: string): Observable<any> {
+    const url = `${this.apiUrl}/geocode/json`;
+    const params = new HttpParams()
+      .set('address', address)
+      .set('key', environment.apiKey);
+
+    return this.http.get(url, { params }).pipe(
+      map((response: any) => response),
+      catchError((error) => {
+        console.error('Error in geocoding:', error);
+        this.overlay.showAlert('GeoError', error.message);
+        return of(null);
+      })
+    );
+  }
+
   
 
-    //convert the address to lat and lng
-  async getLatLng(addressi){
-    try{
-   const latlng = await this.client.geocode({
-     params: {
-       address: addressi,
-       key: environment.apiKey,
-     },
-     timeout: 5000, // milliseconds
-   })
-  return latlng
-    }catch(e){
+  // Get the distance between the origin and destination
+  async getDirections(from: string, to: string): Promise<any> {
+    try {
+      // You can implement the directions request here using google.maps.DirectionsService
+    } catch (e) {
       this.overlay.showAlert('GeoError', e);
       console.log(e);
     }
   }
-
-
-
-  //Get the distance between the origin and destination
-  async getDirections(from, to){
-    try{
-    
-    }catch(e){
-      this.overlay.showAlert('GeoError', e)
-      console.log(e)
-    }
-  }
-
 }

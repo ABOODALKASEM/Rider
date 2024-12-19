@@ -18,6 +18,7 @@ export interface Drivers {
     stop: boolean;
     intransit: boolean;
     cancel: boolean;
-    time: any
+    time: any;
+    onlineState: boolean,
 
 }

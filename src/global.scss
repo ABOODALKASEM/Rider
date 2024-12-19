@@ -35,9 +35,6 @@ ion-header.md {
     }
 }
 
-
-
-
 #inbox-list{
     --ion-background-color: white;
 }
@@ -46,19 +43,20 @@ ion-button{
     --box-shadow:none;
 }
 
-@media (prefers-color-scheme: dark) {
-ion-content{
-    --ion-background-color: #1e1e1e;
-}
 
-.default-alert{
-    --background: #1e1e1e;  
-    --border-radius:5px!important;
-   }
+// @media (prefers-color-scheme: dark) {
+// ion-content{
+//     --ion-background-color: #1e1e1e;
+// }
+
+// .default-alert{
+//     --background: #1e1e1e;  
+//     --border-radius:5px!important;
+//    }
 
   
-   .sc-ion-alert-md-h {
-    --background: #1e1e1e;
-   }
+//    .sc-ion-alert-md-h {
+//     --background: #1e1e1e;
+//    }
 
-}
+// }

@@ -1,60 +1,51 @@
 import { Injectable } from '@angular/core';
-import { AlertController, LoadingController, ToastController } from '@ionic/angular';
+import { LoadingController, ToastController, AlertController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OverlayService {
-  isLoading: any;
+  private loader: HTMLIonLoadingElement | null = null;
 
-  constructor(private loadingCtrl: LoadingController,private toast: ToastController,  private alertController: AlertController) { }
+  constructor(
+    private loadingCtrl: LoadingController,
+    private toastCtrl: ToastController,
+    private alertCtrl: AlertController
+  ) {}
 
-
-  showLoader(msg) {
-    if(!this.isLoading) this.isLoading = true;
-    return this.loadingCtrl.create({
-      message: msg,
-      spinner: 'lines-sharp',
-      cssClass: 'default-alert'
-    }).then(res => {
-      res.present().then(() => {
-        if(!this.isLoading) {
-          res.dismiss().then(() => {
-            console.log('abort presenting');
-          });
-        }
-      })
-    })
-    .catch(e => {
-      this.isLoading = false;
-      console.log(e);
-    })
-  }
-
-  hideLoader() {
-    if(this.isLoading) this.isLoading = false;
-    return this.loadingCtrl.dismiss()
-    .then(() => console.log('dismissed'))
-    .catch(e => console.log(e));
-  }
-
-  async showToast(message) {
-    const alert = await this.toast.create({
+  async showLoader(message: string): Promise<HTMLIonLoadingElement> {
+    if (this.loader) {
+      await this.loader.dismiss();
+    }
+    this.loader = await this.loadingCtrl.create({
       message: message,
-      position: 'top',
-      duration: 500,
-      cssClass: 'default-alert'
-      
+      spinner: 'crescent'
     });
-    await alert.present();
+    await this.loader.present();
+    return this.loader;
   }
 
-  async showAlert(header, message) {
-    const alert = await this.alertController.create({
-      header,
-      message,
-      cssClass: 'default-alert',
-      buttons: ['OK'],
+  async hideLoader() {
+    if (this.loader) {
+      await this.loader.dismiss();
+      this.loader = null;
+    }
+  }
+
+  async showToast(message: string, duration: number = 2000) {
+    const toast = await this.toastCtrl.create({
+      message: message,
+      duration: duration,
+      position: 'bottom'
+    });
+    await toast.present();
+  }
+
+  async showAlert(header: string, message: string) {
+    const alert = await this.alertCtrl.create({
+      header: header,
+      message: message,
+      buttons: ['OK']
     });
     await alert.present();
   }

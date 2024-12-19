@@ -12,7 +12,9 @@
   <ion-list>
     <div *ngFor="let country of filteredCountries" class="country-item">
       <ion-item (click)="selectCountry(country)">
-        <ion-icon name="flag-outline" slot="start" class="country-icon"></ion-icon>
+        <ion-avatar slot="start">
+          <img [src]="country.flag" [alt]="country.name + ' flag'">
+        </ion-avatar>
         <ion-label>{{ country.name }}</ion-label>
       </ion-item>
     </div>
